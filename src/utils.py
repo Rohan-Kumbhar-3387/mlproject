@@ -35,6 +35,7 @@ def evaluate_models(X_train, y_train,X_test,y_test,models,param):
 
             model.set_params(**gs.best_params_)
             model.fit(X_train,y_train)
+            save_object("artifacts/model.pkl", model)
 
             #model.fit(X_train, y_train)  # Train model
 
@@ -52,7 +53,7 @@ def evaluate_models(X_train, y_train,X_test,y_test,models,param):
 
     except Exception as e:
         raise CustomException(e, sys)
-    
+
 def load_object(file_path):
     try:
         with open(file_path, "rb") as file_obj:
@@ -60,3 +61,33 @@ def load_object(file_path):
 
     except Exception as e:
         raise CustomException(e, sys)
+if __name__ == "__main__":
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+
+    # Dummy dataset
+    X = np.array([[1], [2], [3], [4], [5]])
+    y = np.array([2, 4, 6, 8, 10])  # y = 2 * x
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Define models
+    models = {
+        "LinearRegression": LinearRegression()
+    }
+
+    # Hyperparameters (empty dict for LinearRegression)
+    params = {
+        "LinearRegression": {}
+    }
+
+    # Train + save inside evaluate_models
+    report = evaluate_models(X_train, y_train, X_test, y_test, models, params)
+
+    print("Model report:", report)
+
+    # Test loading the saved model
+    loaded_model = load_object("artifacts/model.pkl")
+    print("Prediction with loaded model on [[6]]:", loaded_model.predict([[6]]))
